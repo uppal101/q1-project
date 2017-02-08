@@ -1,0 +1,18 @@
+body {
+  background-image: url("background.png");
+  /*background-position: 0 100%*/
+  /*background-repeat: repeat;*/
+}
+.red-text {
+  margin-left: 30px;
+}
+.subheader {
+  margin-left: 500px;
+}
+ul.list li{
+  width: 21px;
+  float: left;
+}
+.collapsible-header {
+  /*margin-left: 100px;*/
+}
