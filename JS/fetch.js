@@ -141,7 +141,7 @@ window.onload = function(){
     },
     complete: function() { alert('Closed'); } // Callback for Modal close
   }
-);
+)};
 
     // will allow me to modify my movieDatabase to include poster and plot details
     // let movieDetailsPromises = [];
