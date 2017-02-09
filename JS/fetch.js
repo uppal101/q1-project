@@ -1,6 +1,4 @@
 
-// import key from 'tmdbKey';
-
 window.onload = function(){
   getAllMoviesFromSFOpenData()
     .then(function(jsonResult){
@@ -10,61 +8,18 @@ window.onload = function(){
       return convertResponsesToJSONObjects(allTheMovieDbApiRequests)
     })
     .then(function(theMovieDbApiMovieObjects){
-      // console.log(theMovieDbApiMovieObjects);
+      console.log(theMovieDbApiMovieObjects);
       let theMovieDbApiMovieObjectsResults = theMovieDbApiMovieObjects[0].results;
       console.log(theMovieDbApiMovieObjects);
       for(let j = 0; j < theMovieDbApiMovieObjectsResults.length; j++) {
         // for(movie in movieDatabase) {
         // createAndAppendMovieCards(movie);
-
         let currentMovieObj = theMovieDbApiMovieObjectsResults[j];
-        createAndAppendMoviePosterStrip(currentMovieObj);
+        createAndAppendMovieCards(currentMovieObj);
         // console.log(currentMovieObj);
       }
       // filter and add to movieDatabase
     })
-
-  function createAndAppendMoviePosterStrip(currentMovieObj){
-    let posterStrip = createPosterStrip(currentMovieObj);
-    // find .resultPoster
-    let resultPoster = document.getElementById('resultPoster')
-    appendToDom(resultPoster, posterStrip);
-  }
-
-  function appendToDom(resultPoster, posterStrip) {
-    return resultPoster.appendChild(posterStrip);
-  }
-
-  function createPosterStrip(currentMovieObj) {
-    let posterStrip = document.createElement('ul');
-    posterStrip.setAttribute('class', 'collapsible');
-    posterStrip.setAttribute('data-collapsible', 'accordion');
-
-    let listTag = document.createElement('li');
-
-    let posterAndTitle = document.createElement('div');
-    posterAndTitle.setAttribute('class','collapsible-header');
-    let poster = document.createElement('img');
-    poster.src = `https://image.tmdb.org/t/p/w500${currentMovieObj.poster_path}`
-    poster.setAttribute('src', `https://image.tmdb.org/t/p/w300${currentMovieObj.poster_path}`);
-    let title = (posterAndTitle.innerText = currentMovieObj.title);
-
-    let plotOverview = document.createElement('div');
-    plotOverview.setAttribute('class', 'collapsible-body');
-
-    let plotDetails = document.createElement('span');
-    plotDetails.innerText = currentMovieObj.overview;
-
-    posterStrip.appendChild(listTag);
-    listTag.appendChild(posterAndTitle);
-    posterAndTitle.appendChild(poster);
-    listTag.appendChild(plotOverview);
-    plotOverview.appendChild(plotDetails);
-
-    return posterStrip;
-  }
-
-
 
   function getAllMoviesFromSFOpenData(){
     let url = "https://data.sfgov.org/resource/wwmu-gmzc.json?$limit=10";
@@ -106,32 +61,87 @@ window.onload = function(){
     this.year = jsonMovieObj.release_year;
   }
 
-//   function getOrPrompt(lsKeyValue) {
-//   var valInStorage = localStorage.getItem(lsKeyValue);
-//
-//   if(!valInStorage) {
-//     valInStorage = prompt(`Enter a value for ${lsKeyValue}`);
-//     localStorage.setItem(lsKeyValue, valInStorage);
-//   }
-//
-//   return valInStorage;
-// }
-//
-// let apiKey = getOrPrompt('api-key')
-// let googleSrc = `` // put proper src in here
-// let scriptTag = document.createElement('script');
-// scriptTag.src = googleSrc;
-// document.body.append(scriptTag);
+  function createAndAppendMovieCards(currentMovieObj){
+    let movieCard= createCard(currentMovieObj);
+    // find .resultPoster
+    let listings = document.getElementById('listings')
+    appendToDom(listings, movieCard);
+  }
+
+  function appendToDom(listings, movieCard) {
+    return listings.appendChild(movieCard);
+  }
+
+  function createCard(currentMovieObj) {
+    let card= document.createElement('div');
+    card.setAttribute('class', 'col m3');
+    let shadow = document.createElement('div');
+    shadow.setAttribute('class', 'card-hoverable');
+    let posterAndTitle = document.createElement('div');
+    posterAndTitle.setAttribute('class','card-content');
 
 
+    let title = document.createElement('h5');
+    title.setAttribute('class','card-title truncate center');
+    title.setAttribute('data-position','top');
+    title.innerText = currentMovieObj.title;
 
 
+    let poster = document.createElement('img');
+    poster.setAttribute('class', 'poster');
+    poster.src = `https://image.tmdb.org/t/p/w300${currentMovieObj.poster_path}`
+    poster.setAttribute('src', `https://image.tmdb.org/t/p/w300${currentMovieObj.poster_path}`);
+
+    let cardAction = document.createElement('div');
+    cardAction.setAttribute('class', 'card-action center');
+    let button = document.createElement('a');
+    button.setAttribute('class', 'wave-effect waves-light btn modal-trigger');
+    button.setAttribute('href', `#${currentMovieObj.id}`);
+    button.innerText = "Plot Details and Map Locations";
+
+    let modal = document.createElement('div');
+    modal.setAttribute('class', 'modal');
+    modal.setAttribute('id',  `${currentMovieObj.id}`)
+
+    let plotDetails = document.createElement('div');
+    plotDetails.setAttribute('class', 'modal-content');
+    let plotContent = document.createElement('p');
+    plotContent.innerText = currentMovieObj.overview;
 
 
+    card.appendChild(shadow);
+    shadow.appendChild(posterAndTitle);
+    posterAndTitle.appendChild(title);
+    posterAndTitle.appendChild(poster);
+    shadow.appendChild(cardAction);
+    cardAction.appendChild(button);
+    shadow.appendChild(modal);
+    modal.appendChild(plotDetails);
+    plotDetails.appendChild(plotContent);
+
+    $(document).ready(function(){
+    // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+    $('.modal').modal();
+    });
+
+    return card;
+  }
 
 
-
-
+  $('.modal').modal({
+    dismissible: true, // Modal can be dismissed by clicking outside of the modal
+    opacity: .5, // Opacity of modal background
+    inDuration: 300, // Transition in duration
+    outDuration: 200, // Transition out duration
+    startingTop: '4%', // Starting top style attribute
+    endingTop: '10%', // Ending top style attribute
+    ready: function(modal, trigger) { // Callback for Modal open. Modal and trigger parameters available.
+      alert("Ready");
+      console.log(modal, trigger);
+    },
+    complete: function() { alert('Closed'); } // Callback for Modal close
+  }
+);
 
     // will allow me to modify my movieDatabase to include poster and plot details
     // let movieDetailsPromises = [];
@@ -139,30 +149,3 @@ window.onload = function(){
     //   let p = movieDetails(title);
     //   movieDetailsPromises.push(p)
     // }
-
-
-
-  // return movieDatabase
-  // .catch(function(err){
-  //   console.log(err)
-  // })
-
-  // grab movie poster and plot
-  function movieDetails(title){
-    let promises = [];
-    let tmdbApi = fetch (`https://api.themoviedb.org/3/search/movie?api_key=${tmdbKey}&query=${title}&page=1&include_adult=false`);
-
-    // console.log(tmdbApi);
-    promises.push(tmdbApi)
-    // console.log(tmdbApi)
-    return Promise.all(promises)
-    .then(function(movieResponse){
-      // console.log(movieResponse)
-      return movieResponse.json()
-    })
-    .then(function(movieObj){
-      // console.log(movieObj)
-    })
-  }
-
-}
