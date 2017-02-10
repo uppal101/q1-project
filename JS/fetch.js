@@ -7,41 +7,54 @@ window.onload = function(){
     .then(function(allTheMovieDbApiRequests){
       return convertResponsesToJSONObjects(allTheMovieDbApiRequests)
     })
-    .then(function(theMovieDbApiMovieObjects){
-      console.log(theMovieDbApiMovieObjects);
-      let theMovieDbApiMovieObjectsResults = theMovieDbApiMovieObjects[0].results;
-      console.log(theMovieDbApiMovieObjects);
-      for(let j = 0; j < theMovieDbApiMovieObjectsResults.length; j++) {
-        // for(movie in movieDatabase) {
-        // createAndAppendMovieCards(movie);
-        let currentMovieObj = theMovieDbApiMovieObjectsResults[j];
-        createAndAppendMovieCards(currentMovieObj);
-        // console.log(currentMovieObj);
+    .then(function(theMovieDbApiMovieNestedArray){
+      console.log(theMovieDbApiMovieNestedArray);
+      for (let j = 0; j < theMovieDbApiMovieNestedArray.length; j++) {
+        let theMovieDbApiMovieNestedObject = theMovieDbApiMovieNestedArray[j];
+        // console.log(theMovieDbApiMovieNestedObject);
+        let theMovieDbApiMovieObject = theMovieDbApiMovieNestedObject.results[0];
+        console.log(theMovieDbApiMovieObject);
+        if(theMovieDbApiMovieObject !== undefined) {
+          createAndAppendMovieCards(theMovieDbApiMovieObject);
+        }
       }
-      // filter and add to movieDatabase
     })
+}
 
   function getAllMoviesFromSFOpenData(){
-    let url = "https://data.sfgov.org/resource/wwmu-gmzc.json?$limit=10";
+    let url = "https://data.sfgov.org/resource/wwmu-gmzc.json?$limit=1600";
     return fetch(url)
     .then(function(promiseResponse){
       return promiseResponse.json()
     })
+    .then(function(jsonResult){
+      let movieDatabase = {};
+      for(let i = 0; i < jsonResult.length; i++) {
+        let curMovie = jsonResult[i];
+        if(movieDatabase[curMovie.title]){
+          // push to movieDatabase[curMovie.title]'s location array
+          movieDatabase[curMovie.title].locations.push(curMovie.locations)
+        } else {
+          // make Movie obj and add it as value to movieDatabase
+          movieDatabase[curMovie.title] = new Movie(curMovie)
+        }
+      }
+        // console.log(movieDatabase);
+      return movieDatabase;
+    })
   }
 
-  function getMovieDataFromTheMovieDbApi(jsonResult){
-    // could use .map
-    let allTheMovieDbApiResult = []
-    for(let i = 0; i < jsonResult.length; i++) {
-      let curMovie = jsonResult[i];
-      let curMoviePromiseFromTheMovieDbApi = searchTheMovieDbApi(curMovie)
+  function getMovieDataFromTheMovieDbApi(movieDatabase){
+    let allTheMovieDbApiResult = [];
+    for (movieKey in movieDatabase) {
+      let curMoviePromiseFromTheMovieDbApi = searchTheMovieDbApi(movieDatabase[movieKey]);
       allTheMovieDbApiResult.push(curMoviePromiseFromTheMovieDbApi);
     }
     return allTheMovieDbApiResult;
   }
 
   function searchTheMovieDbApi(curMovie){
-    return fetch(`https://api.themoviedb.org/3/search/movie?api_key=${tmdbKey}&query=${curMovie.title}&page=1&include_adult=false  &year=${curMovie.release_year}`);
+    return fetch(`https://api.themoviedb.org/3/search/movie?api_key=${tmdbKey}&query=${curMovie.title}&page=1&include_adult=false  &year=${curMovie.year}`);
   }
 
   function convertResponsesToJSONObjects(allTheMovieDbApiResult){
@@ -50,7 +63,7 @@ window.onload = function(){
         let arrayOfMovieJSONObjects = arrayOfMoviePromises.map(function(curMoviePromise){
           return curMoviePromise.json();
         });
-
+        // console.log(arrayOfMoviePromises);
         return Promise.all(arrayOfMovieJSONObjects)
       })
   }
@@ -140,8 +153,8 @@ window.onload = function(){
       console.log(modal, trigger);
     },
     complete: function() { alert('Closed'); } // Callback for Modal close
-  }
-)};
+  });
+
 
     // will allow me to modify my movieDatabase to include poster and plot details
     // let movieDetailsPromises = [];
