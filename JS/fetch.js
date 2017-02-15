@@ -22,8 +22,11 @@ window.onload = function(){
 }
 
   function getAllMoviesFromSFOpenData(){
-    let url = "https://data.sfgov.org/resource/wwmu-gmzc.json?$limit=1600";
-    return fetch(url)
+    let header = {
+      Authorization: `Bearer ${token}`
+    }
+    let url = "https://data.sfgov.org/resource/wwmu-gmzc.json?$limit=50";
+    return fetch(url, header)
     .then(function(promiseResponse){
       return promiseResponse.json()
     })
@@ -87,7 +90,7 @@ window.onload = function(){
 
   function createCard(currentMovieObj) {
     let card= document.createElement('div');
-    card.setAttribute('class', 'col m3');
+    card.setAttribute('class', 'col s6 m3 l3');
     let shadow = document.createElement('div');
     shadow.setAttribute('class', 'card-hoverable');
     let posterAndTitle = document.createElement('div');
@@ -154,11 +157,3 @@ window.onload = function(){
     },
     complete: function() { alert('Closed'); } // Callback for Modal close
   });
-
-
-    // will allow me to modify my movieDatabase to include poster and plot details
-    // let movieDetailsPromises = [];
-    // for (let title in movieDatabase) {
-    //   let p = movieDetails(title);
-    //   movieDetailsPromises.push(p)
-    // }
