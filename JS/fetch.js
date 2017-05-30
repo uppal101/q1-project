@@ -1,4 +1,3 @@
-
 window.onload = function(){
   getAllMoviesFromSFOpenData()
     .then(function(jsonResult){
@@ -8,12 +7,12 @@ window.onload = function(){
       return convertResponsesToJSONObjects(allTheMovieDbApiRequests)
     })
     .then(function(theMovieDbApiMovieNestedArray){
-      console.log(theMovieDbApiMovieNestedArray);
+      // console.log(theMovieDbApiMovieNestedArray);
       for (let j = 0; j < theMovieDbApiMovieNestedArray.length; j++) {
         let theMovieDbApiMovieNestedObject = theMovieDbApiMovieNestedArray[j];
         // console.log(theMovieDbApiMovieNestedObject);
         let theMovieDbApiMovieObject = theMovieDbApiMovieNestedObject.results[0];
-        console.log(theMovieDbApiMovieObject);
+        // console.log(theMovieDbApiMovieObject);
         if(theMovieDbApiMovieObject !== undefined) {
           createAndAppendMovieCards(theMovieDbApiMovieObject);
         }
@@ -22,11 +21,8 @@ window.onload = function(){
 }
 
   function getAllMoviesFromSFOpenData(){
-    let header = {
-      Authorization: `Bearer ${token}`
-    }
-    let url = "https://data.sfgov.org/resource/wwmu-gmzc.json?$limit=50";
-    return fetch(url, header)
+    let url = `https://data.sfgov.org/resource/wwmu-gmzc.json?$$app_token=${token}`;
+    return fetch(url)
     .then(function(promiseResponse){
       return promiseResponse.json()
     })
@@ -42,7 +38,6 @@ window.onload = function(){
           movieDatabase[curMovie.title] = new Movie(curMovie)
         }
       }
-        // console.log(movieDatabase);
       return movieDatabase;
     })
   }
@@ -66,7 +61,6 @@ window.onload = function(){
         let arrayOfMovieJSONObjects = arrayOfMoviePromises.map(function(curMoviePromise){
           return curMoviePromise.json();
         });
-        // console.log(arrayOfMoviePromises);
         return Promise.all(arrayOfMovieJSONObjects)
       })
   }
@@ -79,7 +73,6 @@ window.onload = function(){
 
   function createAndAppendMovieCards(currentMovieObj){
     let movieCard= createCard(currentMovieObj);
-    // find .resultPoster
     let listings = document.getElementById('listings')
     appendToDom(listings, movieCard);
   }
@@ -96,12 +89,10 @@ window.onload = function(){
     let posterAndTitle = document.createElement('div');
     posterAndTitle.setAttribute('class','card-content');
 
-
     let title = document.createElement('h5');
     title.setAttribute('class','card-title truncate center');
     title.setAttribute('data-position','top');
     title.innerText = currentMovieObj.title;
-
 
     let poster = document.createElement('img');
     poster.setAttribute('class', 'poster');
@@ -124,7 +115,6 @@ window.onload = function(){
     let plotContent = document.createElement('p');
     plotContent.innerText = currentMovieObj.overview;
 
-
     card.appendChild(shadow);
     shadow.appendChild(posterAndTitle);
     posterAndTitle.appendChild(title);
@@ -139,7 +129,6 @@ window.onload = function(){
     // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
     $('.modal').modal();
     });
-
     return card;
   }
 
